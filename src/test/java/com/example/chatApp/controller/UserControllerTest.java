@@ -1,6 +1,7 @@
 package com.example.chatApp.controller;
 
 
+import com.example.chatApp.dto.UserDTO;
 import com.example.chatApp.model.User;
 import com.example.chatApp.service.UserService;
 import org.junit.Test;
@@ -38,6 +39,7 @@ public class UserControllerTest {
     private UserService userService;
 
     private User user;
+    private UserDTO userDTO;
 
     @BeforeEach
     public void setUp() {
@@ -49,7 +51,7 @@ public class UserControllerTest {
 
     @Test
     public void testAddUser() throws Exception {
-        when(userService.addUser(any(User.class))).thenReturn(user);
+        when(userService.addUser(any(UserDTO.class))).thenReturn(userDTO);
 
         mockMvc.perform(post("/api/users/add")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -60,7 +62,7 @@ public class UserControllerTest {
 
     @Test
     public void testGetUserById() throws Exception {
-        when(userService.getUserById(anyLong())).thenReturn(user);
+        when(userService.getUserById(anyLong())).thenReturn(userDTO);
 
         mockMvc.perform(get("/api/users/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -70,7 +72,7 @@ public class UserControllerTest {
 
     @Test
     public void testGetAllUsers() throws Exception {
-        List<User> userList = Arrays.asList(user);
+        List<UserDTO> userList = Arrays.asList(userDTO);
         when(userService.getAllUsers()).thenReturn(userList);
 
         mockMvc.perform(get("/api/users/all")
@@ -81,7 +83,7 @@ public class UserControllerTest {
 
     @Test
     public void testUpdateUser() throws Exception {
-        when(userService.updateUser(anyLong(), any(User.class))).thenReturn(user);
+        when(userService.updateUser(anyLong(), any(UserDTO.class))).thenReturn(userDTO);
 
         mockMvc.perform(put("/api/users/update/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -99,7 +101,7 @@ public class UserControllerTest {
 
     @Test
     public void testGetUserByUsername() throws Exception {
-        when(userService.getUserByUsername(anyString())).thenReturn(user);
+        when(userService.getUserByUsername(anyString())).thenReturn(userDTO);
 
         mockMvc.perform(get("/api/users/username/{username}", "testuser")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -119,7 +121,7 @@ public class UserControllerTest {
 
     @Test
     public void testGetUsersByCreatedAt() throws Exception {
-        List<User> userList = Arrays.asList(user);
+        List<UserDTO> userList = Arrays.asList(userDTO);
         when(userService.getUsersByCreatedAt(any(LocalDateTime.class))).thenReturn(userList);
 
         mockMvc.perform(get("/api/users/created-at/{createdAt}", "2023-05-15T14:30:00")
@@ -130,7 +132,7 @@ public class UserControllerTest {
 
     @Test
     public void testUpdateUsername() throws Exception {
-        when(userService.updateUsername(anyLong(), anyString())).thenReturn(user);
+        when(userService.updateUsername(anyLong(), anyString())).thenReturn(userDTO);
 
         mockMvc.perform(put("/api/users/update-username/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -160,7 +162,7 @@ public class UserControllerTest {
 
     @Test
     public void testSearchUsersByUsername() throws Exception {
-        List<User> userList = Arrays.asList(user);
+        List<UserDTO> userList = Arrays.asList(userDTO);
         when(userService.searchUsersByUsername(anyString())).thenReturn(userList);
 
         mockMvc.perform(get("/api/users/search/{usernameFragment}", "test")

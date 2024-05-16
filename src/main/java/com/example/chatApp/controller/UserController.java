@@ -1,7 +1,7 @@
 package com.example.chatApp.controller;
 
 
-import com.example.chatApp.model.User;
+import com.example.chatApp.dto.UserDTO;
 import com.example.chatApp.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,32 +32,32 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addUser(@RequestBody User user) {
-        log.debug("Creating new user from {}", user);
+    public ResponseEntity<UserDTO> addUser(@RequestBody UserDTO userDTO) {
+        log.debug("Creating new user from {}", userDTO);
 
-        User newUser = userService.addUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        UserDTO newUserDTO = userService.addUser(userDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newUserDTO);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        User user = userService.getUserById(id);
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+        UserDTO user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
         log.debug("Get a list of users");
 
-        List<User> users = userService.getAllUsers();
+        List<UserDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDetails) {
         log.debug("Update user" + userDetails);
 
-        User updatedUser = userService.updateUser(id, userDetails);
+        UserDTO updatedUser = userService.updateUser(id, userDetails);
         return ResponseEntity.ok(updatedUser);
     }
 
@@ -70,8 +70,8 @@ public class UserController {
     }
 
     @GetMapping("/username/{username}")
-    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
-        User user = userService.getUserByUsername(username);
+    public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
+        UserDTO user = userService.getUserByUsername(username);
         return ResponseEntity.ok(user);
     }
 
@@ -82,20 +82,20 @@ public class UserController {
     }
 
     @GetMapping("/created-at/{createdAt}")
-    public ResponseEntity<List<User>> getUsersByCreatedAt(@PathVariable LocalDateTime createdAt) {
-        List<User> users = userService.getUsersByCreatedAt(createdAt);
+    public ResponseEntity<List<UserDTO>> getUsersByCreatedAt(@PathVariable LocalDateTime createdAt) {
+        List<UserDTO> users = userService.getUsersByCreatedAt(createdAt);
         return ResponseEntity.ok(users);
     }
 
     @PutMapping("/update-username/{id}")
-    public ResponseEntity<User> updateUsername(@PathVariable Long id, @RequestBody String newUsername) {
-        User updatedUser = userService.updateUsername(id, newUsername);
+    public ResponseEntity<UserDTO> updateUsername(@PathVariable Long id, @RequestBody String newUsername) {
+        UserDTO updatedUser = userService.updateUsername(id, newUsername);
         return ResponseEntity.ok(updatedUser);
     }
 
     @PostMapping("/get-users-by-ids")
-    public ResponseEntity<List<User>> getUsersByIds(@RequestBody List<Long> ids) {
-        List<User> users = userService.getUsersByIds(ids);
+    public ResponseEntity<List<UserDTO>> getUsersByIds(@RequestBody List<Long> ids) {
+        List<UserDTO> users = userService.getUsersByIds(ids);
         return ResponseEntity.ok(users);
     }
 
@@ -103,7 +103,7 @@ public class UserController {
     public ResponseEntity getById(@PathVariable Long id) {
         log.debug("Get by id "+ id);
 
-        User usersList = userService.getUsersById(id);
+        UserDTO usersList = userService.getUsersById(id);
         return ResponseEntity.ok(usersList);
     }
 }

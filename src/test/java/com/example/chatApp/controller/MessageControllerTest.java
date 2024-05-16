@@ -34,7 +34,7 @@ public class MessageControllerTest {
     public void testAddMessage() {
         MessageDTO messageDTO = new MessageDTO();
         Message newMessage = new Message();
-        when(messageService.createMessage(messageDTO)).thenReturn(newMessage);
+        when(messageService.createMessage(messageDTO)).thenReturn(messageDTO);
 
         ResponseEntity<?> response = messageController.addMessage(messageDTO);
 
@@ -46,9 +46,10 @@ public class MessageControllerTest {
     public void testGetMessageById() {
         Long messageId = 1L;
         Message message = new Message();
-        when(messageService.getMessageById(messageId)).thenReturn(message);
+        MessageDTO messageDTO = new MessageDTO();
+        when(messageService.getMessageById(messageId)).thenReturn(messageDTO);
 
-        ResponseEntity<Message> response = messageController.getMessageById(messageId);
+        ResponseEntity<MessageDTO> response = messageController.getMessageById(messageId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(message, response.getBody());
@@ -57,10 +58,10 @@ public class MessageControllerTest {
     @Test
     public void testGetMessagesByChatId() {
         Long chatId = 1L;
-        List<Message> messages = new ArrayList<>();
+        List<MessageDTO> messages = new ArrayList<>();
         when(messageService.getMessagesByChatId(chatId)).thenReturn(messages);
 
-        ResponseEntity<List<Message>> response = messageController.getMessagesByChatId(chatId);
+        ResponseEntity<List<MessageDTO>> response = messageController.getMessagesByChatId(chatId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(messages, response.getBody());
@@ -69,10 +70,10 @@ public class MessageControllerTest {
     @Test
     public void testGetAllMessagesByChatId() {
         Long chatId = 1L;
-        List<Message> messages = new ArrayList<>();
+        List<MessageDTO> messages = new ArrayList<>();
         when(messageService.getAllMessagesByChatId(chatId)).thenReturn(messages);
 
-        ResponseEntity<List<Message>> response = messageController.getAllMessagesByChatId(chatId);
+        ResponseEntity<List<MessageDTO>> response = messageController.getAllMessagesByChatId(chatId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(messages, response.getBody());
@@ -81,10 +82,10 @@ public class MessageControllerTest {
     @Test
     public void testGetAllMessagesByUserId() {
         Long userId = 1L;
-        List<Message> messages = new ArrayList<>();
+        List<MessageDTO> messages = new ArrayList<>();
         when(messageService.getAllMessagesByUserId(userId)).thenReturn(messages);
 
-        ResponseEntity<List<Message>> response = messageController.getAllMessagesByUserId(userId);
+        ResponseEntity<List<MessageDTO>> response = messageController.getAllMessagesByUserId(userId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(messages, response.getBody());
@@ -92,10 +93,10 @@ public class MessageControllerTest {
 
     @Test
     public void testGetAllMessages() {
-        List<Message> messages = new ArrayList<>();
+        List<MessageDTO> messages = new ArrayList<>();
         when(messageService.getAllMessages()).thenReturn(messages);
 
-        ResponseEntity<List<Message>> response = messageController.getAllMessages();
+        ResponseEntity<List<MessageDTO>> response = messageController.getAllMessages();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(messages, response.getBody());
@@ -105,10 +106,10 @@ public class MessageControllerTest {
     public void testUpdateMessageContent() {
         Long messageId = 1L;
         String newContent = "Updated content";
-        Message updatedMessage = new Message();
+        MessageDTO updatedMessage = new MessageDTO();
         when(messageService.updateMessageContent(messageId, newContent)).thenReturn(updatedMessage);
 
-        ResponseEntity<Message> response = messageController.updateMessageContent(messageId, newContent);
+        ResponseEntity<MessageDTO> response = messageController.updateMessageContent(messageId, newContent);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(updatedMessage, response.getBody());
@@ -118,10 +119,10 @@ public class MessageControllerTest {
     public void testUpdateMessageContentById() {
         Long messageId = 1L;
         String newContent = "Updated content";
-        Message updatedMessage = new Message();
+        MessageDTO updatedMessage = new MessageDTO();
         when(messageService.updateMessageContent(messageId, newContent)).thenReturn(updatedMessage);
 
-        ResponseEntity<Message> response = messageController.updateMessageContentById(messageId, newContent);
+        ResponseEntity<MessageDTO> response = messageController.updateMessageContentById(messageId, newContent);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(updatedMessage, response.getBody());

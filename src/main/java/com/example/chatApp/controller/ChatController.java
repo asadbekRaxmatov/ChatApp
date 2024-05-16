@@ -2,11 +2,9 @@ package com.example.chatApp.controller;
 
 
 import com.example.chatApp.dto.ChatDTO;
-import com.example.chatApp.model.Chat;
-import com.example.chatApp.model.User;
+import com.example.chatApp.dto.UserDTO;
 import com.example.chatApp.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,26 +27,26 @@ public class ChatController {
     private ChatService chatService;
 
     @PostMapping("/add")
-    public ResponseEntity<Chat> addChat(@RequestBody ChatDTO chatDTO) {
-        Chat createdChat = chatService.createChat(chatDTO);
+    public ResponseEntity<ChatDTO> addChat(@RequestBody ChatDTO chatDTO) {
+        ChatDTO createdChat = chatService.createChat(chatDTO);
         return ResponseEntity.ok(createdChat);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Chat> getChatById(@PathVariable Long id) {
-        Chat chat = chatService.getChatById(id);
+    public ResponseEntity<ChatDTO> getChatById(@PathVariable Long id) {
+        ChatDTO chat = chatService.getChatById(id);
         return ResponseEntity.ok(chat);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Chat>> getAllChats() {
-        List<Chat> chats = chatService.getAllChats();
+    public ResponseEntity<List<ChatDTO>> getAllChats() {
+        List<ChatDTO> chats = chatService.getAllChats();
         return ResponseEntity.ok(chats);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Chat> updateChat(@PathVariable Long id, @RequestBody ChatDTO chatDTO) {
-        Chat updatedChat = chatService.updateChat(id, chatDTO);
+    public ResponseEntity<ChatDTO> updateChat(@PathVariable Long id, @RequestBody ChatDTO chatDTO) {
+        ChatDTO updatedChat = chatService.updateChat(id, chatDTO);
         return ResponseEntity.ok(updatedChat);
     }
 
@@ -59,44 +57,44 @@ public class ChatController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Chat>> getChatsByUserId(@PathVariable Long userId) {
-        List<Chat> chats = chatService.getChatsByUserId(userId);
+    public ResponseEntity<List<ChatDTO>> getChatsByUserId(@PathVariable Long userId) {
+        List<ChatDTO> chats = chatService.getChatsByUserId(userId);
         return ResponseEntity.ok(chats);
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<Chat> getChatByName(@PathVariable String name) {
-        Chat chat = chatService.getChatByName(name);
+    public ResponseEntity<ChatDTO> getChatByName(@PathVariable String name) {
+        ChatDTO chat = chatService.getChatByName(name);
         return ResponseEntity.ok(chat);
     }
 
     @GetMapping("/search/{nameFragment}")
-    public ResponseEntity<List<Chat>> searchChatsByName(@PathVariable String nameFragment) {
-        List<Chat> chats = chatService.searchChatsByName(nameFragment);
+    public ResponseEntity<List<ChatDTO>> searchChatsByName(@PathVariable String nameFragment) {
+        List<ChatDTO> chats = chatService.searchChatsByName(nameFragment);
         return ResponseEntity.ok(chats);
     }
 
     @PutMapping("/{chatId}/addUser/{userId}")
-    public ResponseEntity<Chat> addUserToChat(@PathVariable Long chatId, @PathVariable Long userId) {
-        Chat updatedChat = chatService.addUserToChat(chatId, userId);
+    public ResponseEntity<ChatDTO> addUserToChat(@PathVariable Long chatId, @PathVariable Long userId) {
+        ChatDTO updatedChat = chatService.addUserToChat(chatId, userId);
         return ResponseEntity.ok(updatedChat);
     }
 
     @PutMapping("/{chatId}/removeUser/{userId}")
-    public ResponseEntity<Chat> removeUserFromChat(@PathVariable Long chatId, @PathVariable Long userId) {
-        Chat updatedChat = chatService.removeUserFromChat(chatId, userId);
+    public ResponseEntity<ChatDTO> removeUserFromChat(@PathVariable Long chatId, @PathVariable Long userId) {
+        ChatDTO updatedChat = chatService.removeUserFromChat(chatId, userId);
         return ResponseEntity.ok(updatedChat);
     }
 
     @GetMapping("/{chatId}/users")
-    public ResponseEntity<List<User>> getUsersInChat(@PathVariable Long chatId) {
-        List<User> users = chatService.getUsersInChat(chatId);
+    public ResponseEntity<List<UserDTO>> getUsersInChat(@PathVariable Long chatId) {
+        List<UserDTO> users = chatService.getUsersInChat(chatId);
         return ResponseEntity.ok(users);
     }
 
     @PutMapping("/{chatId}/updateName")
-    public ResponseEntity<Chat> updateChatName(@PathVariable Long chatId, @RequestParam String newName) {
-        Chat updatedChat = chatService.updateChatName(chatId, newName);
+    public ResponseEntity<ChatDTO> updateChatName(@PathVariable Long chatId, @RequestParam String newName) {
+        ChatDTO updatedChat = chatService.updateChatName(chatId, newName);
         return ResponseEntity.ok(updatedChat);
     }
 

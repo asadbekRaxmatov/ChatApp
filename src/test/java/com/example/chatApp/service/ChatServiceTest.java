@@ -1,6 +1,7 @@
 package com.example.chatApp.service;
 
 import com.example.chatApp.dto.ChatDTO;
+import com.example.chatApp.mapper.ChatMapper;
 import com.example.chatApp.model.Chat;
 import com.example.chatApp.model.User;
 import com.example.chatApp.repository.ChatRepository;
@@ -32,6 +33,8 @@ public class ChatServiceTest {
     @InjectMocks
     private ChatService chatService;
 
+    private ChatMapper chatMapper;
+
     @Test
     public void testGetChatById() {
         Long chatId = 1L;
@@ -40,7 +43,7 @@ public class ChatServiceTest {
 
         when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
 
-        Chat retrievedChat = chatService.getChatById(chatId);
+        ChatDTO retrievedChat = chatService.getChatById(chatId);
 
         assertEquals(chat.getId(), retrievedChat.getId());
         verify(chatRepository, times(1)).findById(chatId);
@@ -54,7 +57,7 @@ public class ChatServiceTest {
 
         when(chatRepository.findAll()).thenReturn(chatList);
 
-        List<Chat> retrievedChats = chatService.getAllChats();
+        List<ChatDTO> retrievedChats = chatService.getAllChats();
 
         assertEquals(chatList.size(), retrievedChats.size());
         verify(chatRepository, times(1)).findAll();
@@ -78,7 +81,7 @@ public class ChatServiceTest {
         when(userRepository.findAllById(chatDTO.getUserIds())).thenReturn(new ArrayList<>());
         when(chatRepository.save(any(Chat.class))).thenReturn(updatedChat);
 
-        Chat result = chatService.updateChat(chatId, chatDTO);
+        ChatDTO result = chatService.updateChat(chatId, chatDTO);
 
         assertEquals(updatedChat.getId(), result.getId());
         assertEquals(updatedChat.getName(), result.getName());
@@ -109,7 +112,7 @@ public class ChatServiceTest {
 
         when(chatRepository.findAllByUsers_Id(userId)).thenReturn(chatList);
 
-        List<Chat> retrievedChats = chatService.getChatsByUserId(userId);
+        List<ChatDTO> retrievedChats = chatService.getChatsByUserId(userId);
 
         assertEquals(chatList.size(), retrievedChats.size());
         verify(chatRepository, times(1)).findAllByUsers_Id(userId);
@@ -123,7 +126,7 @@ public class ChatServiceTest {
 
         when(chatRepository.findByName(name)).thenReturn(chat);
 
-        Chat retrievedChat = chatService.getChatByName(name);
+        ChatDTO retrievedChat = chatService.getChatByName(name);
 
         assertEquals(chat.getName(), retrievedChat.getName());
         verify(chatRepository, times(1)).findByName(name);
@@ -138,7 +141,7 @@ public class ChatServiceTest {
 
         when(chatRepository.findByNameContaining(nameFragment)).thenReturn(chatList);
 
-        List<Chat> retrievedChats = chatService.searchChatsByName(nameFragment);
+        List<ChatDTO> retrievedChats = chatService.searchChatsByName(nameFragment);
 
         assertEquals(chatList.size(), retrievedChats.size());
         verify(chatRepository, times(1)).findByNameContaining(nameFragment);
@@ -155,8 +158,15 @@ public class ChatServiceTest {
         User user2 = new User();
         user2.setId(2L);
 
+        // Mock user repository to return the user list
         when(userRepository.findAllById(chatDTO.getUserIds())).thenReturn(Arrays.asList(user1, user2));
 
+        // Create a Chat entity to be saved
+        Chat chatToSave = new Chat();
+        chatToSave.setName(chatDTO.getName());
+        chatToSave.setUsers(Arrays.asList(user1, user2));
+
+        // Mock chat repository to return a saved chat entity
         Chat savedChat = new Chat();
         savedChat.setId(1L);
         savedChat.setName(chatDTO.getName());
@@ -164,13 +174,23 @@ public class ChatServiceTest {
 
         when(chatRepository.save(any(Chat.class))).thenReturn(savedChat);
 
-        Chat createdChat = chatService.createChat(chatDTO);
+        // Mock the mapper to convert the saved Chat to ChatDTO
+        ChatDTO savedChatDTO = new ChatDTO();
+        savedChatDTO.setName(savedChat.getName());
+        savedChatDTO.setUserIds(chatDTO.getUserIds());
 
-        assertNotNull(createdChat);
-        assertEquals(chatDTO.getName(), createdChat.getName());
-        assertEquals(chatDTO.getUserIds().size(), createdChat.getUsers().size());
+        when(chatMapper.toDto(savedChat)).thenReturn(savedChatDTO);
+
+        // Call the service method
+        ChatDTO createdChatDTO = chatService.createChat(chatDTO);
+
+        // Assertions
+        assertNotNull(createdChatDTO);
+        assertEquals(chatDTO.getName(), createdChatDTO.getName());
+        assertEquals(chatDTO.getUserIds().size(), createdChatDTO.getUserIds().size());
         verify(userRepository, times(1)).findAllById(chatDTO.getUserIds());
         verify(chatRepository, times(1)).save(any(Chat.class));
+        verify(chatMapper, times(1)).toDto(savedChat);
     }
 
 }

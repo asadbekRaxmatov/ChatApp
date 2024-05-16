@@ -41,9 +41,9 @@ public class ChatControllerTest {
         createdChat.setId(1L);
         createdChat.setName(chatDTO.getName());
 
-        when(chatService.createChat(any(ChatDTO.class))).thenReturn(createdChat);
+        when(chatService.createChat(any(ChatDTO.class))).thenReturn(chatDTO);
 
-        ResponseEntity<Chat> responseEntity = chatController.addChat(chatDTO);
+        ResponseEntity<ChatDTO> responseEntity = chatController.addChat(chatDTO);
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
@@ -54,11 +54,12 @@ public class ChatControllerTest {
     public void testGetChatById() {
         Long chatId = 1L;
         Chat chat = new Chat();
+        ChatDTO chatDTO = new ChatDTO();
         chat.setId(chatId);
 
-        when(chatService.getChatById(chatId)).thenReturn(chat);
+        when(chatService.getChatById(chatId)).thenReturn(chatDTO);
 
-        ResponseEntity<Chat> responseEntity = chatController.getChatById(chatId);
+        ResponseEntity<ChatDTO> responseEntity = chatController.getChatById(chatId);
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
@@ -67,13 +68,13 @@ public class ChatControllerTest {
 
     @Test
     public void testGetAllChats() {
-        List<Chat> chatList = new ArrayList<>();
-        chatList.add(new Chat());
-        chatList.add(new Chat());
+        List<ChatDTO> chatList = new ArrayList<>();
+        chatList.add(new ChatDTO());
+        chatList.add(new ChatDTO());
 
         when(chatService.getAllChats()).thenReturn(chatList);
 
-        ResponseEntity<List<Chat>> responseEntity = chatController.getAllChats();
+        ResponseEntity<List<ChatDTO>> responseEntity = chatController.getAllChats();
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
@@ -96,13 +97,13 @@ public class ChatControllerTest {
         ChatDTO chatDTO = new ChatDTO();
         chatDTO.setName("New Chat Name");
 
-        Chat updatedChat = new Chat();
+        ChatDTO updatedChat = new ChatDTO();
         updatedChat.setId(chatId);
         updatedChat.setName(chatDTO.getName());
 
         when(chatService.updateChat(chatId, chatDTO)).thenReturn(updatedChat);
 
-        ResponseEntity<Chat> responseEntity = chatController.updateChat(chatId, chatDTO);
+        ResponseEntity<ChatDTO> responseEntity = chatController.updateChat(chatId, chatDTO);
 
         verify(chatService, times(1)).updateChat(chatId, chatDTO);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -115,13 +116,13 @@ public class ChatControllerTest {
         Long chatId = 1L;
         String newName = "New Chat Name";
 
-        Chat updatedChat = new Chat();
+        ChatDTO updatedChat = new ChatDTO();
         updatedChat.setId(chatId);
         updatedChat.setName(newName);
 
         when(chatService.updateChatName(chatId, newName)).thenReturn(updatedChat);
 
-        ResponseEntity<Chat> responseEntity = chatController.updateChatName(chatId, newName);
+        ResponseEntity<ChatDTO> responseEntity = chatController.updateChatName(chatId, newName);
 
         verify(chatService, times(1)).updateChatName(chatId, newName);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());

@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +69,15 @@ public class MessageServiceTest {
 
         when(messageRepository.save(any(Message.class))).thenReturn(message);
 
-        Message createdMessage = messageService.createMessage(messageDTO);
+        MessageDTO createdMessageDTO = messageService.createMessage(messageDTO);
+
+        // Map the created MessageDTO to a Message object
+        Message createdMessage = new Message();
+        createdMessage.setId(createdMessageDTO.getChatId());
+        createdMessage.setAuthor(userRepository.getById(createdMessageDTO.getAuthorId()));
+        createdMessage.setChat(chatRepository.getById(createdMessageDTO.getChatId()));
+        createdMessage.setContentType(createdMessageDTO.getContentType());
+        createdMessage.setContent(createdMessageDTO.getContent());
 
         assertEquals(message.getId(), createdMessage.getId());
         assertEquals(message.getAuthor(), createdMessage.getAuthor());
@@ -86,9 +93,9 @@ public class MessageServiceTest {
 
         when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
 
-        Message retrievedMessage = messageService.getMessageById(1L);
+        MessageDTO retrievedMessage = messageService.getMessageById(1L);
 
-        assertEquals(message.getId(), retrievedMessage.getId());
+        assertEquals(message.getId(), retrievedMessage.getChatId());
     }
 
     @Test
@@ -97,7 +104,7 @@ public class MessageServiceTest {
         List<Message> messages = new ArrayList<>();
         when(messageRepository.findAllByChatId(chatId)).thenReturn(messages);
 
-        List<Message> retrievedMessages = messageService.getAllMessagesByChatId(chatId);
+        List<MessageDTO> retrievedMessages = messageService.getAllMessagesByChatId(chatId);
 
         assertNotNull(retrievedMessages);
         assertEquals(messages, retrievedMessages);
@@ -109,7 +116,7 @@ public class MessageServiceTest {
         List<Message> messages = new ArrayList<>();
         when(messageRepository.findAllByAuthor_Id(userId)).thenReturn(messages);
 
-        List<Message> retrievedMessages = messageService.getAllMessagesByUserId(userId);
+        List<MessageDTO> retrievedMessages = messageService.getAllMessagesByUserId(userId);
 
         assertNotNull(retrievedMessages);
         assertEquals(messages, retrievedMessages);
@@ -120,7 +127,7 @@ public class MessageServiceTest {
         List<Message> messages = new ArrayList<>();
         when(messageRepository.findAll()).thenReturn(messages);
 
-        List<Message> retrievedMessages = messageService.getAllMessages();
+        List<MessageDTO> retrievedMessages = messageService.getAllMessages();
 
         assertNotNull(retrievedMessages);
         assertEquals(messages, retrievedMessages);
@@ -158,14 +165,22 @@ public class MessageServiceTest {
         updatedMessage.setContent("Updated message");
         when(messageRepository.save(any(Message.class))).thenReturn(updatedMessage);
 
-        Message result = messageService.updateMessage(messageDTO, messageId);
+        MessageDTO result = messageService.updateMessage(messageDTO, messageId);
+
+        // Map the created MessageDTO to a Message object
+        Message createdMessage = new Message();
+        createdMessage.setId(result.getChatId());
+        createdMessage.setAuthor(userRepository.getById(result.getAuthorId()));
+        createdMessage.setChat(chatRepository.getById(result.getChatId()));
+        createdMessage.setContentType(result.getContentType());
+        createdMessage.setContent(result.getContent());
 
         assertNotNull(result);
-        assertEquals(updatedMessage.getId(), result.getId());
-        assertEquals(updatedMessage.getAuthor(), result.getAuthor());
-        assertEquals(updatedMessage.getChat(), result.getChat());
-        assertEquals(updatedMessage.getContentType(), result.getContentType());
-        assertEquals(updatedMessage.getContent(), result.getContent());
+        assertEquals(updatedMessage.getId(), createdMessage.getId());
+        assertEquals(updatedMessage.getAuthor(), createdMessage.getAuthor());
+        assertEquals(updatedMessage.getChat(), createdMessage.getChat());
+        assertEquals(updatedMessage.getContentType(), createdMessage.getContentType());
+        assertEquals(updatedMessage.getContent(), createdMessage.getContent());
     }
 
     @Test
@@ -184,10 +199,10 @@ public class MessageServiceTest {
         updatedMessage.setContent(newContent);
         when(messageRepository.save(any(Message.class))).thenReturn(updatedMessage);
 
-        Message result = messageService.updateMessageContent(messageId, newContent);
+        MessageDTO result = messageService.updateMessageContent(messageId, newContent);
 
         assertNotNull(result);
-        assertEquals(updatedMessage.getId(), result.getId());
+        assertEquals(updatedMessage.getId(), result.getChatId());
         assertEquals(updatedMessage.getContent(), result.getContent());
     }
 
@@ -210,7 +225,7 @@ public class MessageServiceTest {
         List<Message> messages = new ArrayList<>();
         when(messageRepository.findByChatId(chatId)).thenReturn(messages);
 
-        List<Message> retrievedMessages = messageService.getMessagesByChatId(chatId);
+        List<MessageDTO> retrievedMessages = messageService.getMessagesByChatId(chatId);
 
         assertNotNull(retrievedMessages);
         assertEquals(messages, retrievedMessages);

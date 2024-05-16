@@ -1,91 +1,110 @@
 package com.example.chatApp.service;
 
 
+import com.example.chatApp.dto.UserDTO;
 import com.example.chatApp.exception.ResourceNotFoundException;
+import com.example.chatApp.mapper.UserMapper;
 import com.example.chatApp.model.User;
 import com.example.chatApp.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    private final UserMapper userMapper;
+
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
-    public User addUser(User user) {
-        return userRepository.save(user);
+    public UserDTO addUser(UserDTO userDTO) {
+        User user = userMapper.toEntity(userDTO);
+        User savedUser = userRepository.save(user);
+        return userMapper.toDto(savedUser);
     }
 
     //redis
     @Cacheable(value = "user", key = "#id")
-    public User getUsersById(Long id) {
-        return userRepository.findById(id).orElse(null);
+    public UserDTO getUsersById(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        return userMapper.toDto(user);
     }
 
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+    public UserDTO getUserById(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        return userMapper.toDto(user);
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream().map(userMapper::toDto).collect(Collectors.toList());
     }
 
     @Transactional
-    public User updateUser(Long id, User userDetails) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+    public UserDTO updateUser(Long id, UserDTO userDetails) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
         user.setUsername(userDetails.getUsername());
         user.setCreatedAt(userDetails.getCreatedAt());
 
-        return userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+        return userMapper.toDto(updatedUser);
     }
 
+    @Transactional
     public void deleteUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
         userRepository.delete(user);
     }
 
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public UserDTO getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username);
+        return user != null ? userMapper.toDto(user) : null;
     }
 
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
 
-    public List<User> getUsersByCreatedAt(LocalDateTime createdAt) {
-        return userRepository.findAllByCreatedAt(createdAt);
+    @Transactional(readOnly = true)
+    public List<UserDTO> getUsersByCreatedAt(LocalDateTime createdAt) {
+        List<User> users = userRepository.findAllByCreatedAt(createdAt);
+        return users.stream().map(userMapper::toDto).collect(Collectors.toList());
     }
 
-    public User updateUsername(Long id, String newUsername) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+
+    @Transactional
+    public UserDTO updateUsername(Long id, String newUsername) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
         user.setUsername(newUsername);
-        return userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+        return userMapper.toDto(updatedUser);
     }
 
-    public List<User> getUsersByIds(List<Long> ids) {
-        return userRepository.findAllById(ids);
+    @Transactional(readOnly = true)
+    public List<UserDTO> getUsersByIds(List<Long> ids) {
+        List<User> users = userRepository.findAllById(ids);
+        return users.stream().map(userMapper::toDto).collect(Collectors.toList());
     }
 
     public void deleteAllUsers() {
         userRepository.deleteAll();
     }
 
-    public List<User> searchUsersByUsername(String usernameFragment) {
-        return userRepository.findByUsernameContaining(usernameFragment);
+    @Transactional(readOnly = true)
+    public List<UserDTO> searchUsersByUsername(String usernameFragment) {
+        List<User> users = userRepository.findByUsernameContaining(usernameFragment);
+        return users.stream().map(userMapper::toDto).collect(Collectors.toList());
     }
 
 }

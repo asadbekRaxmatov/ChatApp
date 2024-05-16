@@ -2,6 +2,7 @@ package com.example.chatApp.service;
 
 import com.example.chatApp.dto.MessageDTO;
 import com.example.chatApp.exception.ResourceNotFoundException;
+import com.example.chatApp.mapper.MessageMapper;
 import com.example.chatApp.model.Chat;
 import com.example.chatApp.model.Message;
 import com.example.chatApp.model.User;
@@ -13,6 +14,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MessageService {
@@ -26,11 +28,14 @@ public class MessageService {
     @Autowired
     private UserRepository userRepository;
 
-    public MessageService(MessageRepository messageRepository) {
+    private final MessageMapper messageMapper;
+
+    public MessageService(MessageRepository messageRepository, MessageMapper messageMapper) {
         this.messageRepository = messageRepository;
+        this.messageMapper = messageMapper;
     }
 
-    public Message createMessage(MessageDTO messageDTO) {
+    public MessageDTO createMessage(MessageDTO messageDTO) {
         Message message = new Message();
         User author = userRepository.getById(messageDTO.getAuthorId());
         Chat chat = chatRepository.getById(messageDTO.getChatId());
@@ -40,34 +45,39 @@ public class MessageService {
         message.setContentType(messageDTO.getContentType());
         message.setContent(messageDTO.getContent());
 
-        return messageRepository.save(message);
+        message = messageRepository.save(message);
+        return messageMapper.toDto(message);
     }
 
     //redis
     @Cacheable(value = "user", key = "#id")
-    public Message getMessagesById(Long id) {
-        return messageRepository.findById(id).orElse(null);
+    public MessageDTO getMessagesById(Long id) {
+        Message message = messageRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Message", "id", id));
+        return messageMapper.toDto(message);
     }
 
-    public Message getMessageById(Long messageId) {
-        return messageRepository.findById(messageId)
-                .orElseThrow(() -> new ResourceNotFoundException("Message", "id", messageId));
+    public MessageDTO getMessageById(Long messageId) {
+        Message message = messageRepository.findById(messageId).orElseThrow(() -> new ResourceNotFoundException("Message", "id", messageId));
+        return messageMapper.toDto(message);
     }
 
-    public List<Message> getAllMessagesByChatId(Long chatId) {
-        return messageRepository.findAllByChatId(chatId);
+    public List<MessageDTO> getAllMessagesByChatId(Long chatId) {
+        List<Message> messages = messageRepository.findAllByChatId(chatId);
+        return messages.stream().map(messageMapper::toDto).collect(Collectors.toList());
     }
 
-    public List<Message> getAllMessagesByUserId(Long userId) {
-        return messageRepository.findAllByAuthor_Id(userId);
+    public List<MessageDTO> getAllMessagesByUserId(Long userId) {
+        List<Message> messages = messageRepository.findAllByAuthor_Id(userId);
+        return messages.stream().map(messageMapper::toDto).collect(Collectors.toList());
     }
 
-    public List<Message> getAllMessages() {
-        return messageRepository.findAll();
+    public List<MessageDTO> getAllMessages() {
+        List<Message> messages = messageRepository.findAll();
+        return messages.stream().map(messageMapper::toDto).collect(Collectors.toList());
     }
 
-    public Message updateMessage(MessageDTO messageDTO, Long messageId) {
-        Message existingMessage = getMessageById(messageId);
+    public MessageDTO updateMessage(MessageDTO messageDTO, Long messageId) {
+        Message existingMessage = messageRepository.findById(messageId).orElseThrow(() -> new ResourceNotFoundException("Message", "id", messageId));
         User author = userRepository.getById(messageDTO.getAuthorId());
         Chat chat = chatRepository.getById(messageDTO.getChatId());
 
@@ -75,24 +85,26 @@ public class MessageService {
         existingMessage.setAuthor(author);
         existingMessage.setContentType(messageDTO.getContentType());
         existingMessage.setContent(messageDTO.getContent());
-        return messageRepository.save(existingMessage);
+
+        Message updatedMessage = messageRepository.save(existingMessage);
+        return messageMapper.toDto(updatedMessage); // Map the updated Message to MessageDTO
     }
 
-    public Message updateMessageContent(Long messageId, String newContent) {
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new ResourceNotFoundException("Message", "id", messageId));
+    public MessageDTO updateMessageContent(Long messageId, String newContent) {
+        Message message = messageRepository.findById(messageId).orElseThrow(() -> new ResourceNotFoundException("Message", "id", messageId));
         message.setContent(newContent);
-        return messageRepository.save(message);
+        Message updatedMessage = messageRepository.save(message);
+        return messageMapper.toDto(updatedMessage);
     }
 
     public void removeMessage(Long messageId) {
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new ResourceNotFoundException("Message", "id", messageId));
+        Message message = messageRepository.findById(messageId).orElseThrow(() -> new ResourceNotFoundException("Message", "id", messageId));
         messageRepository.delete(message);
     }
 
-    public List<Message> getMessagesByChatId(Long chatId) {
-        return messageRepository.findByChatId(chatId);
+    public List<MessageDTO> getMessagesByChatId(Long chatId) {
+        List<Message> messages = messageRepository.findByChatId(chatId);
+        return messages.stream().map(messageMapper::toDto).collect(Collectors.toList());
     }
 
 }

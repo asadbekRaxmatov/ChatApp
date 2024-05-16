@@ -1,5 +1,7 @@
 package com.example.chatApp.service;
 
+import com.example.chatApp.dto.UserDTO;
+import com.example.chatApp.mapper.UserMapper;
 import com.example.chatApp.model.User;
 import com.example.chatApp.repository.UserRepository;
 import org.junit.Test;
@@ -29,10 +31,14 @@ public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private UserMapper userMapper;
+
     @InjectMocks
     private UserService userService;
 
     private User user;
+    private UserDTO userDTO;
 
     @BeforeEach
     public void setUp() {
@@ -47,7 +53,7 @@ public class UserServiceTest {
     public void testAddUser() {
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        User createdUser = userService.addUser(user);
+        UserDTO createdUser = userService.addUser(userDTO);
 
         assertNotNull(createdUser);
         assertEquals(user.getUsername(), createdUser.getUsername());
@@ -58,7 +64,7 @@ public class UserServiceTest {
     public void testGetUserById() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
-        User foundUser = userService.getUserById(1L);
+        UserDTO foundUser = userService.getUserById(1L);
 
         assertNotNull(foundUser);
         assertEquals(user.getUsername(), foundUser.getUsername());
@@ -70,7 +76,7 @@ public class UserServiceTest {
         List<User> userList = Arrays.asList(user);
         when(userRepository.findAll()).thenReturn(userList);
 
-        List<User> users = userService.getAllUsers();
+        List<UserDTO> users = userService.getAllUsers();
 
         assertEquals(1, users.size());
         verify(userRepository, times(1)).findAll();
@@ -80,13 +86,17 @@ public class UserServiceTest {
     public void testUpdateUser() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
+        when(userMapper.toDto(any(User.class))).thenReturn(userDTO);
+        when(userMapper.toEntity(any(UserDTO.class))).thenReturn(user);
 
-        User updatedUser = userService.updateUser(1L, user);
+        UserDTO updatedUserDTO = userService.updateUser(1L, userDTO);
 
-        assertNotNull(updatedUser);
-        assertEquals(user.getUsername(), updatedUser.getUsername());
+        assertNotNull(updatedUserDTO);
+        assertEquals(userDTO.getUsername(), updatedUserDTO.getUsername());
         verify(userRepository, times(1)).findById(1L);
         verify(userRepository, times(1)).save(user);
+        verify(userMapper, times(1)).toDto(user);
+        verify(userMapper, times(1)).toEntity(userDTO);
     }
 
     @Test
@@ -102,8 +112,9 @@ public class UserServiceTest {
     @Test
     public void testGetUserByUsername() {
         when(userRepository.findByUsername(anyString())).thenReturn(user);
+        when(userMapper.toDto(any(User.class))).thenReturn(userDTO);
 
-        User foundUser = userService.getUserByUsername("testuser");
+        UserDTO foundUser = userService.getUserByUsername("testuser");
 
         assertNotNull(foundUser);
         assertEquals(user.getUsername(), foundUser.getUsername());
@@ -125,7 +136,7 @@ public class UserServiceTest {
         List<User> userList = Arrays.asList(user);
         when(userRepository.findAllByCreatedAt(any(LocalDateTime.class))).thenReturn(userList);
 
-        List<User> users = userService.getUsersByCreatedAt(user.getCreatedAt());
+        List<UserDTO> users = userService.getUsersByCreatedAt(user.getCreatedAt());
 
         assertEquals(1, users.size());
         verify(userRepository, times(1)).findAllByCreatedAt(user.getCreatedAt());
@@ -136,7 +147,7 @@ public class UserServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        User updatedUser = userService.updateUsername(1L, "newusername");
+        UserDTO updatedUser = userService.updateUsername(1L, "newusername");
 
         assertNotNull(updatedUser);
         assertEquals("newusername", updatedUser.getUsername());
@@ -149,7 +160,7 @@ public class UserServiceTest {
         List<User> userList = Arrays.asList(user);
         when(userRepository.findAllById(anyList())).thenReturn(userList);
 
-        List<User> users = userService.getUsersByIds(Arrays.asList(1L));
+        List<UserDTO> users = userService.getUsersByIds(Arrays.asList(1L));
 
         assertEquals(1, users.size());
         verify(userRepository, times(1)).findAllById(Arrays.asList(1L));
@@ -167,7 +178,7 @@ public class UserServiceTest {
         List<User> userList = Arrays.asList(user);
         when(userRepository.findByUsernameContaining(anyString())).thenReturn(userList);
 
-        List<User> users = userService.searchUsersByUsername("test");
+        List<UserDTO> users = userService.searchUsersByUsername("test");
 
         assertEquals(1, users.size());
         verify(userRepository, times(1)).findByUsernameContaining("test");
